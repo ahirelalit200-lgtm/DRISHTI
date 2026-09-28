@@ -1,0 +1,76 @@
+# =============================================================================
+# EXPERIMENT PROTOCOL  --  SIH 26174 Sample Transfer Experiment
+# =============================================================================
+
+experiment: "ISRO BAS Payload - Sample Transfer Experiment"
+description: >
+  Operator opens the sample box, picks the sample, transfers the sample to the tray,
+  closes the sample box, and confirms completion.
+
+stability_frames: 4
+out_of_sequence_cooldown_s: 3.0
+idle_reminder_s: 25.0
+
+steps:
+  - id: 1
+    name: "Open sample box"
+    action: open_sample_box
+    instruction: "Open the sample box lid."
+    zone: outer_box
+    hand: any
+    min_confidence: 0.55
+    dwell_s: 0.5
+    timeout_s: 45
+    safety_critical: false
+    outcome_hint: "box opened"
+
+  - id: 2
+    name: "Pick sample"
+    action: pick_sample
+    instruction: "Pick the sample from the sample box."
+    zone: outer_box
+    hand: any
+    min_confidence: 0.58
+    dwell_s: 0.5
+    timeout_s: 40
+    safety_critical: false
+    outcome_hint: "sample in hand"
+
+  - id: 3
+    name: "Transfer sample to tray"
+    action: transfer_sample
+    instruction: "Transfer the sample into the sample tray."
+    zone: sample_tray
+    hand: any
+    min_confidence: 0.65
+    dwell_s: 0.6
+    timeout_s: 60
+    safety_critical: true
+    allow_manual_skip: false
+    outcome_hint: "sample transferred"
+
+  - id: 4
+    name: "Close sample box"
+    action: close_sample_box
+    instruction: "Close the sample box lid."
+    zone: outer_box
+    hand: any
+    min_confidence: 0.60
+    dwell_s: 0.6
+    timeout_s: 40
+    safety_critical: true
+    allow_manual_skip: false
+    outcome_hint: "box sealed"
+
+  - id: 5
+    name: "Confirm completion"
+    action: confirm_completion
+    instruction: "Confirm experiment completion on the control panel."
+    zone: work_surface
+    hand: any
+    min_confidence: 0.60
+    dwell_s: 0.5
+    timeout_s: 30
+    safety_critical: true
+    allow_manual_skip: false
+    outcome_hint: "experiment confirmed"

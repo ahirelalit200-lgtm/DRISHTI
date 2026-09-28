@@ -1,0 +1,6 @@
+[console_scripts]
+aegis = aegis.gui.app:main
+aegis-calibrate = aegis.tools.calibrate:main
+aegis-doctor = aegis.tools.diagnostics:main
+aegis-record = aegis.tools.record_dataset:main
+aegis-train = aegis.tools.train_action_model:main

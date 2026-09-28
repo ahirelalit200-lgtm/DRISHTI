@@ -1,0 +1,9 @@
+# Extra packages needed only to TRAIN and export a model.
+# Not required to run the app.
+-r requirements.txt
+
+onnx>=1.15,<2
+
+# Optional. The trainer has a pure-NumPy backend and works without PyTorch;
+# installing torch just makes training faster.
+# torch>=2.2

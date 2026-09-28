@@ -1,0 +1,16 @@
+.venv/
+__pycache__/
+*.pyc
+logs/*.log
+logs/*.jsonl
+logs/*.txt
+outputs/recordings/*
+datasets/actions/clips/*
+datasets/actions/video/*
+models/action/*.onnx
+models/action/*.meta.json
+models/objects/*
+models/mediapipe/*.task
+artifacts/
+configs/zones.json
+configs/rack_quad.json

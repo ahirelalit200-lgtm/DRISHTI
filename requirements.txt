@@ -1,0 +1,23 @@
+# ---------------------------------------------------------------------------
+# AEGIS AI-HAR runtime dependencies.
+# Pinned to ranges that are known to have Windows wheels for Python 3.10-3.12.
+# ---------------------------------------------------------------------------
+
+numpy>=1.26,<3
+PyYAML>=6,<7
+Pillow>=10,<12
+
+# opencv-contrib (not plain opencv) because we need cv2.aruco for the
+# orientation-agnostic rack frame.
+opencv-contrib-python>=4.9,<5
+
+# Hand + pose landmarks. 0.10.14 is the last release that reliably ships the
+# classic mp.solutions API, which needs no separate .task model files.
+# Newer wheels also work -- run FETCH_MODELS.bat to get the .task bundles.
+mediapipe>=0.10.9,<0.11
+
+# Runs the trained Tier-1 action model, CPU-only, fully offline.
+onnxruntime>=1.17,<2
+
+# Offline text-to-speech for the voice alerts (SAPI5 on Windows).
+pyttsx3>=2.90,<3

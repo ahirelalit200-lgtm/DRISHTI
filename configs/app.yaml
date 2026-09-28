@@ -1,0 +1,74 @@
+# =============================================================================
+# AEGIS AI-HAR  --  runtime configuration
+# Every path is relative to the project root unless absolute.
+# =============================================================================
+
+# ---------------------------------------------------------------- CAPTURE ---
+# 0, 1, 2 ... = webcam index.  Or a file path ("datasets/demo.mp4"),
+# or an IP camera URL ("rtsp://192.168.1.50:554/stream").
+video_source: 0
+frame_width: 1280
+frame_height: 720
+target_fps: 30
+flip_horizontal: true          # mirror the webcam so left/right read naturally
+loop_video_file: true          # replay video files instead of stopping
+
+# ------------------------------------------------------------- PERCEPTION ---
+pose_enabled: true
+hands_enabled: true
+max_hands: 2
+detection_confidence: 0.5
+tracking_confidence: 0.5
+model_complexity: 1            # 0 = fastest, 1 = balanced, 2 = most accurate
+
+# Orientation-agnostic rack frame. Print 4 ArUco markers (DICT_4X4_50, ids
+# 0-3) and tape them to the corners of the payload rack. Everything is then
+# measured in rack coordinates, so an inverted operator still validates
+# correctly. Falls back to the calibrated static quad if markers are hidden.
+rack_marker_enabled: true
+rack_marker_dict: DICT_4X4_50
+rack_marker_ids: [0, 1, 2, 3]
+
+# Optional Tier-2 object detector. Leave disabled until you have trained a
+# YOLO model on your own experiment objects.
+objects_enabled: false
+objects_model_path: models/objects/best.pt
+objects_confidence: 0.45
+
+# ------------------------------------------------------------ RECOGNITION ---
+action_model_path: models/action/action_model.onnx
+action_metadata_path: models/action/action_model.meta.json
+window_frames: 32              # ~1.1 s of context at 30 fps
+window_stride: 2
+learned_min_confidence: 0.60   # below this, the heuristic tier stays in charge
+prefer_learned: true
+stability_frames: 4            # consecutive agreeing frames before acting
+
+# ----------------------------------------------------------------- OUTPUT ---
+voice_enabled: true
+voice_rate: 165
+voice_volume: 1.0
+voice_cooldown_s: 2.5
+
+log_dir: logs
+report_dir: logs
+
+record_enabled: true
+record_dir: outputs/recordings
+record_fps: 20
+record_annotated: true         # burn the HUD into the stored video
+
+# Streaming. The MJPEG server binds to stream_host:stream_port; the ground
+# station opens http://<this-pc-ip>:<port>/ .  Set stream_target_ip purely to
+# document the intended recipient (it appears in the session log).
+# stream_push_url additionally pipes via ffmpeg, e.g. rtsp://10.0.0.5:8554/bas
+stream_enabled: false
+stream_host: 0.0.0.0
+stream_port: 8095
+stream_quality: 70
+stream_target_ip: ""
+stream_push_url: ""
+
+# ------------------------------------------------------------------ FILES ---
+protocol_path: configs/protocol.yaml
+zones_path: configs/zones.json

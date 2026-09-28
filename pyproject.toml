@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "aegis-har"
+version = "1.0.0"
+description = "AI Human Activity Recognition for on-board BAS experiments (SIH 26174)"
+requires-python = ">=3.10"
+readme = "README.md"
+
+[project.scripts]
+aegis = "aegis.gui.app:main"
+aegis-calibrate = "aegis.tools.calibrate:main"
+aegis-record = "aegis.tools.record_dataset:main"
+aegis-train = "aegis.tools.train_action_model:main"
+aegis-doctor = "aegis.tools.diagnostics:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
