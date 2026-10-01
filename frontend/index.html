@@ -3,667 +3,708 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AEGIS AI-HAR — Mission Control Console</title>
-    <!-- Google Fonts -->
+    <title>DRISHTI // AI-HAR Mission Console -- ISRO Payload Validation System</title>
+    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;600;700&family=Consolas&display=swap" rel="stylesheet">
+    
     <style>
         :root {
-            --bg-dark: #070a12;
-            --bg-card: rgba(15, 23, 42, 0.75);
-            --bg-card-border: rgba(56, 189, 248, 0.15);
-            --accent-cyan: #06b6d4;
-            --accent-glow: #00f0ff;
-            --accent-blue: #3b82f6;
-            --status-green: #10b981;
-            --status-amber: #f59e0b;
-            --status-red: #ef4444;
-            --text-main: #f8fafc;
-            --text-muted: #94a3b8;
-            --font-main: 'Inter', sans-serif;
-            --font-display: 'Outfit', sans-serif;
-            --font-mono: 'JetBrains Mono', monospace;
+            --bg-color: #080b12;
+            --panel-bg: #0e131d;
+            --panel-hi: #141b28;
+            --card-bg: #121a26;
+            --line-color: #1e2a3d;
+            --line-hi: #2c3d57;
+
+            --text-main: #dce6f4;
+            --text-dim: #7c8ea8;
+            --text-faint: #4d5c73;
+
+            --accent-gold: #f0c674;
+            --color-ok: #5fd68a;
+            --color-info: #5cc8f5;
+            --color-warn: #f5a742;
+            --color-crit: #ff5f56;
+            --color-idle: #3a4a63;
         }
 
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
+            user-select: none;
         }
 
         body {
-            background-color: var(--bg-dark);
-            background-image: 
-                radial-gradient(circle at 15% 15%, rgba(6, 182, 212, 0.08) 0%, transparent 40%),
-                radial-gradient(circle at 85% 85%, rgba(59, 130, 246, 0.08) 0%, transparent 40%);
+            background-color: var(--bg-color);
             color: var(--text-main);
-            font-family: var(--font-main);
-            min-height: 100vh;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            height: 100vh;
             display: flex;
             flex-direction: column;
-            overflow-x: hidden;
+            overflow: hidden;
         }
 
-        /* Header Navigation */
+        /* Top Header */
         header {
+            background-color: var(--panel-bg);
+            border-bottom: 1px solid var(--line-color);
+            padding: 0.5rem 1.25rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 1.25rem 2rem;
-            background: rgba(7, 10, 18, 0.85);
-            backdrop-filter: blur(12px);
-            border-bottom: 1px solid var(--bg-card-border);
-            position: sticky;
-            top: 0;
-            z-index: 100;
         }
 
-        .brand {
+        .header-title-container {
             display: flex;
             align-items: center;
             gap: 0.75rem;
         }
 
-        .brand-badge {
-            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-blue));
-            color: #000;
-            font-family: var(--font-display);
-            font-weight: 800;
-            padding: 0.35rem 0.65rem;
-            border-radius: 6px;
-            font-size: 0.9rem;
-            letter-spacing: 1px;
-            box-shadow: 0 0 15px rgba(6, 182, 212, 0.4);
-        }
-
-        .brand-title {
-            font-family: var(--font-display);
-            font-size: 1.35rem;
+        .header-main-title {
+            font-size: 1.15rem;
             font-weight: 700;
             letter-spacing: 0.5px;
-            background: linear-gradient(90deg, #fff, #94a3b8);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            color: #fff;
         }
 
-        .header-controls {
+        .header-main-title span {
+            color: var(--accent-gold);
+        }
+
+        .header-subtitle {
+            font-size: 0.8rem;
+            color: var(--text-dim);
+            letter-spacing: 0.5px;
+            border-left: 1px solid var(--line-color);
+            padding-left: 0.75rem;
+        }
+
+        /* Status Lamps */
+        .status-lamps {
             display: flex;
             align-items: center;
-            gap: 1rem;
+            gap: 1.25rem;
         }
 
-        .status-pill {
+        .status-lamp {
             display: flex;
             align-items: center;
-            gap: 0.5rem;
-            padding: 0.4rem 0.9rem;
-            border-radius: 20px;
-            background: rgba(15, 23, 42, 0.8);
-            border: 1px solid var(--bg-card-border);
-            font-size: 0.85rem;
-            font-weight: 500;
+            gap: 0.4rem;
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            font-weight: 600;
+            letter-spacing: 0.5px;
         }
 
-        .status-dot {
+        .lamp-dot {
             width: 8px;
             height: 8px;
             border-radius: 50%;
-            background: var(--status-red);
-            box-shadow: 0 0 8px var(--status-red);
-            transition: all 0.3s ease;
+            background-color: var(--color-idle);
+            transition: background-color 0.3s;
         }
 
-        .status-dot.connected {
-            background: var(--status-green);
-            box-shadow: 0 0 10px var(--status-green);
+        .lamp-dot.active { background-color: var(--color-ok); box-shadow: 0 0 6px var(--color-ok); }
+        .lamp-dot.warn { background-color: var(--color-warn); box-shadow: 0 0 6px var(--color-warn); }
+        .lamp-dot.crit { background-color: var(--color-crit); box-shadow: 0 0 6px var(--color-crit); }
+        .lamp-dot.blue { background-color: var(--color-info); box-shadow: 0 0 6px var(--color-info); }
+
+        /* Render Server URL Config Bar */
+        .url-bar {
+            background: var(--panel-hi);
+            border-bottom: 1px solid var(--line-color);
+            padding: 0.35rem 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 0.8rem;
         }
 
-        .status-dot.connecting {
-            background: var(--status-amber);
-            box-shadow: 0 0 10px var(--status-amber);
-            animation: pulse 1.5s infinite;
+        .url-bar label {
+            color: var(--accent-gold);
+            font-weight: 600;
+            white-space: nowrap;
         }
 
-        @keyframes pulse {
-            0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.4; transform: scale(1.2); }
+        .url-input {
+            flex: 1;
+            background: var(--bg-color);
+            border: 1px solid var(--line-color);
+            color: var(--text-main);
+            padding: 0.25rem 0.6rem;
+            border-radius: 4px;
+            font-family: 'Consolas', monospace;
+            font-size: 0.8rem;
+            outline: none;
         }
 
-        /* Main Dashboard Grid */
-        main {
+        .url-input:focus {
+            border-color: var(--color-info);
+        }
+
+        /* Main Workspace Layout */
+        .workspace {
             flex: 1;
             display: grid;
-            grid-template-columns: 1fr 420px;
-            gap: 1.5rem;
-            padding: 1.5rem 2rem;
-            max-width: 1700px;
-            margin: 0 auto;
-            width: 100%;
+            grid-template-columns: 1fr 340px;
+            gap: 10px;
+            padding: 10px;
+            min-height: 0;
         }
 
-        @media (max-width: 1100px) {
-            main {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        /* Glassmorphism Cards */
-        .card {
-            background: var(--bg-card);
-            backdrop-filter: blur(16px);
-            border: 1px solid var(--bg-card-border);
-            border-radius: 14px;
-            padding: 1.5rem;
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .card-header {
+        /* Left Side: Video Viewport & Telemetry */
+        .video-panel {
+            background-color: var(--panel-bg);
+            border: 1px solid var(--line-color);
+            border-radius: 4px;
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1rem;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-            padding-bottom: 0.75rem;
-        }
-
-        .card-title {
-            font-family: var(--font-display);
-            font-size: 1.1rem;
-            font-weight: 700;
-            color: var(--accent-glow);
-            letter-spacing: 0.5px;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        /* Video Feed HUD Container */
-        .video-container {
-            position: relative;
-            width: 100%;
-            background: #000;
-            border-radius: 12px;
+            flex-direction: column;
             overflow: hidden;
-            aspect-ratio: 16 / 9;
-            border: 1px solid rgba(6, 182, 212, 0.25);
-            box-shadow: 0 0 25px rgba(0, 240, 255, 0.08);
+            position: relative;
+        }
+
+        .video-viewport {
+            flex: 1;
+            background-color: #000;
+            position: relative;
             display: flex;
             align-items: center;
             justify-content: center;
         }
 
-        #webcam, #hudCanvas {
+        #webcam, #overlayCanvas {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            object-fit: cover;
+            object-fit: contain;
         }
 
-        #hudCanvas {
-            z-index: 10;
+        #overlayCanvas {
+            z-index: 5;
             pointer-events: none;
         }
 
-        /* Futuristic HUD Corner Crosshairs */
-        .hud-overlay {
-            position: absolute;
-            inset: 0;
-            pointer-events: none;
-            z-index: 15;
-            padding: 1rem;
+        /* Telemetry Strip */
+        .telemetry-strip {
+            background-color: var(--panel-hi);
+            border-top: 1px solid var(--line-color);
+            padding: 0.5rem 1rem;
+            display: flex;
+            gap: 2rem;
+        }
+
+        .telemetry-item {
             display: flex;
             flex-direction: column;
-            justify-content: space-between;
+            gap: 0.1rem;
         }
 
-        .hud-corners::before, .hud-corners::after {
-            content: '';
-            position: absolute;
-            width: 24px;
-            height: 24px;
-            border: 2px solid var(--accent-glow);
-        }
-
-        .hud-corners-top::before { top: 12px; left: 12px; border-right: none; border-bottom: none; }
-        .hud-corners-top::after { top: 12px; right: 12px; border-left: none; border-bottom: none; }
-        .hud-corners-bottom::before { bottom: 12px; left: 12px; border-right: none; border-top: none; }
-        .hud-corners-bottom::after { bottom: 12px; right: 12px; border-left: none; border-top: none; }
-
-        .hud-badge {
-            align-self: flex-start;
-            background: rgba(0, 0, 0, 0.65);
-            border: 1px solid var(--accent-cyan);
-            color: var(--accent-glow);
-            font-family: var(--font-mono);
-            font-size: 0.75rem;
-            padding: 0.3rem 0.6rem;
-            border-radius: 4px;
-            backdrop-filter: blur(8px);
-        }
-
-        /* Right Panel Controls & Metrics */
-        .panel-stack {
-            display: flex;
-            flex-direction: column;
-            gap: 1.25rem;
-        }
-
-        /* Instruction Card */
-        .instruction-box {
-            background: linear-gradient(135deg, rgba(6, 182, 212, 0.12), rgba(59, 130, 246, 0.12));
-            border: 1px solid rgba(6, 182, 212, 0.3);
-            border-radius: 10px;
-            padding: 1.25rem;
-            margin-top: 0.5rem;
-        }
-
-        .instruction-label {
-            font-size: 0.75rem;
+        .telemetry-label {
+            font-size: 0.65rem;
+            color: var(--text-dim);
             font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            color: var(--accent-cyan);
-            margin-bottom: 0.4rem;
-        }
-
-        .instruction-text {
-            font-family: var(--font-display);
-            font-size: 1.25rem;
-            font-weight: 700;
-            line-height: 1.3;
-            color: #fff;
-        }
-
-        /* Telemetry Meters */
-        .meter-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1rem;
-            margin-top: 1rem;
-        }
-
-        .meter-card {
-            background: rgba(15, 23, 42, 0.5);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            border-radius: 8px;
-            padding: 0.9rem;
-        }
-
-        .meter-title {
-            font-size: 0.75rem;
-            color: var(--text-muted);
-            margin-bottom: 0.3rem;
-            text-transform: uppercase;
             letter-spacing: 0.5px;
         }
 
-        .meter-value {
-            font-family: var(--font-mono);
-            font-size: 1.1rem;
+        .telemetry-value {
+            font-family: 'Consolas', monospace;
+            font-size: 0.85rem;
+            color: var(--text-main);
+        }
+
+        /* Right Side: Protocol & Sidebar Cards */
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            min-height: 0;
+        }
+
+        .card {
+            background-color: var(--panel-bg);
+            border: 1px solid var(--line-color);
+            border-radius: 4px;
+            padding: 0.85rem;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card-title {
+            font-size: 0.7rem;
             font-weight: 700;
-            color: var(--accent-glow);
+            color: var(--text-dim);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 0.5rem;
         }
 
-        /* Progress Bar */
-        .progress-container {
-            margin-top: 1rem;
+        /* Next Step Card */
+        .next-step-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--line-color);
         }
 
-        .progress-bar-bg {
-            height: 8px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 4px;
-            overflow: hidden;
-            margin-top: 0.5rem;
+        .step-main-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--accent-gold);
+            margin-bottom: 0.4rem;
+            letter-spacing: 0.5px;
         }
 
-        .progress-bar-fill {
-            height: 100%;
-            width: 0%;
-            background: linear-gradient(90deg, var(--accent-cyan), var(--accent-blue));
-            border-radius: 4px;
-            transition: width 0.4s ease;
-            box-shadow: 0 0 10px var(--accent-cyan);
+        .step-instruction {
+            font-size: 0.85rem;
+            color: var(--text-main);
+            line-height: 1.3;
+            margin-bottom: 0.75rem;
         }
 
-        /* Connection Config Form */
-        .form-group {
+        .step-progress-text {
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            font-family: 'Consolas', monospace;
+        }
+
+        /* Voice Diagnostics Card */
+        .voice-card {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .voice-info {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .voice-status-text {
+            font-family: 'Consolas', monospace;
+            font-size: 0.75rem;
+            color: var(--text-dim);
+        }
+
+        /* Protocol Rail */
+        .protocol-card {
+            flex: 1;
+            min-height: 0;
+            overflow-y: auto;
+        }
+
+        .protocol-list {
             display: flex;
             flex-direction: column;
             gap: 0.4rem;
-            margin-bottom: 0.9rem;
         }
 
-        .form-group label {
-            font-size: 0.8rem;
-            color: var(--text-muted);
-        }
-
-        .input-field {
-            background: rgba(7, 10, 18, 0.8);
-            border: 1px solid var(--bg-card-border);
-            border-radius: 6px;
-            padding: 0.6rem 0.8rem;
-            color: #fff;
-            font-family: var(--font-mono);
-            font-size: 0.85rem;
-            outline: none;
-            transition: border-color 0.2s;
-        }
-
-        .input-field:focus {
-            border-color: var(--accent-cyan);
-            box-shadow: 0 0 8px rgba(6, 182, 212, 0.3);
-        }
-
-        .btn-group {
-            display: flex;
-            gap: 0.75rem;
-        }
-
-        .btn {
-            flex: 1;
-            padding: 0.65rem 1rem;
-            border-radius: 8px;
-            border: none;
-            font-family: var(--font-main);
-            font-weight: 600;
-            font-size: 0.85rem;
-            cursor: pointer;
-            transition: all 0.2s ease;
+        .protocol-row {
             display: flex;
             align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
+            gap: 0.6rem;
+            padding: 0.35rem 0.5rem;
+            border-radius: 3px;
+            font-size: 0.82rem;
+            background: transparent;
         }
 
-        .btn-primary {
-            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-blue));
-            color: #000;
-            box-shadow: 0 4px 14px rgba(6, 182, 212, 0.3);
+        .protocol-row.active {
+            background: var(--card-bg);
+            border-left: 3px solid var(--accent-gold);
         }
 
-        .btn-primary:hover {
-            opacity: 0.9;
-            transform: translateY(-1px);
+        .protocol-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: var(--text-faint);
         }
 
-        .btn-secondary {
-            background: rgba(255, 255, 255, 0.08);
-            color: var(--text-main);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+        .protocol-dot.done { background-color: var(--color-ok); }
+        .protocol-dot.active { background-color: var(--accent-gold); }
+        .protocol-dot.skip { background-color: var(--color-warn); }
+
+        .protocol-num {
+            font-family: 'Consolas', monospace;
+            color: var(--text-faint);
+            font-size: 0.8rem;
         }
 
-        .btn-secondary:hover {
-            background: rgba(255, 255, 255, 0.15);
+        .protocol-name {
+            flex: 1;
+            color: var(--text-dim);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
+
+        .protocol-name.active { color: #fff; font-weight: 600; }
+        .protocol-name.done { color: var(--text-main); }
+
+        .protocol-badge {
+            font-family: 'Consolas', monospace;
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: var(--text-faint);
+        }
+
+        .protocol-badge.crit { color: var(--color-crit); }
+        .protocol-badge.done { color: var(--color-ok); }
+        .protocol-badge.active { color: var(--accent-gold); }
 
         /* Event Log Feed */
-        .log-box {
-            background: rgba(5, 7, 13, 0.9);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            border-radius: 8px;
-            padding: 0.75rem;
-            height: 140px;
+        .log-card {
+            height: 150px;
+        }
+
+        .event-log-container {
+            flex: 1;
+            background-color: var(--bg-color);
+            border: 1px solid var(--line-color);
+            border-radius: 3px;
+            padding: 0.5rem;
             overflow-y: auto;
-            font-family: var(--font-mono);
+            font-family: 'Consolas', monospace;
             font-size: 0.75rem;
             display: flex;
             flex-direction: column;
-            gap: 0.35rem;
+            gap: 0.3rem;
         }
 
-        .log-entry {
-            line-height: 1.4;
-            color: var(--text-muted);
+        .log-line {
+            line-height: 1.3;
+            word-break: break-all;
         }
 
-        .log-entry.info { color: #38bdf8; }
-        .log-entry.warn { color: #fbbf24; }
-        .log-entry.speech { color: #a7f3d0; }
+        .log-time { color: var(--text-faint); }
+        .log-text { color: var(--color-info); }
+        .log-text.speech { color: var(--color-ok); }
+        .log-text.warn { color: var(--color-warn); }
+
+        /* Action Buttons Bottom Bar */
+        footer {
+            background-color: var(--panel-bg);
+            border-top: 1px solid var(--line-color);
+            padding: 0.6rem 1rem;
+            display: flex;
+            gap: 0.6rem;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 0.55rem 1.1rem;
+            font-size: 0.8rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            border: 1px solid var(--line-hi);
+            background-color: var(--panel-hi);
+            color: var(--text-main);
+            border-radius: 3px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            text-transform: uppercase;
+        }
+
+        .btn:hover {
+            filter: brightness(1.2);
+            border-color: var(--text-dim);
+        }
+
+        .btn-start {
+            background-color: var(--accent-gold);
+            color: #000;
+            border-color: var(--accent-gold);
+        }
+
+        .btn-stop {
+            background-color: var(--color-crit);
+            color: #fff;
+            border-color: var(--color-crit);
+        }
+
+        .btn-confirm {
+            background-color: var(--color-ok);
+            color: #000;
+            border-color: var(--color-ok);
+        }
+
+        .btn-test {
+            padding: 0.35rem 0.75rem;
+            font-size: 0.75rem;
+            background-color: var(--accent-gold);
+            color: #000;
+            border: none;
+            font-weight: 700;
+        }
     </style>
 </head>
 <body>
 
-    <!-- Header -->
+    <!-- Header Bar -->
     <header>
-        <div class="brand">
-            <span class="brand-badge">AEGIS</span>
-            <span class="brand-title">AI-HAR Mission Console</span>
+        <div class="header-title-container">
+            <div class="header-main-title"><span>DRISHTI</span> // AI-HAR Mission Console</div>
+            <div class="header-subtitle">ISRO Payload Validation System</div>
         </div>
-        <div class="header-controls">
-            <div class="status-pill">
-                <div class="status-dot" id="statusDot"></div>
-                <span id="statusText">Disconnected</span>
-            </div>
-            <button class="btn btn-secondary" id="audioToggleBtn" style="padding: 0.4rem 0.8rem; font-size: 0.8rem;">
-                🔊 Voice Guidance ON
-            </button>
+
+        <div class="status-lamps">
+            <div class="status-lamp"><div class="lamp-dot" id="lampCamera"></div> CAMERA</div>
+            <div class="status-lamp"><div class="lamp-dot" id="lampModel"></div> MODEL</div>
+            <div class="status-lamp"><div class="lamp-dot" id="lampRack"></div> RACK</div>
+            <div class="status-lamp"><div class="lamp-dot" id="lampVoice"></div> VOICE</div>
+            <div class="status-lamp"><div class="lamp-dot" id="lampRecord"></div> RECORD</div>
+            <div class="status-lamp"><div class="lamp-dot" id="lampStream"></div> STREAM</div>
         </div>
     </header>
 
-    <!-- Main Content -->
-    <main>
-        <!-- Left Column: Video Feed & Live HUD -->
-        <div class="video-section">
-            <div class="card" style="padding: 1rem;">
-                <div class="card-header">
-                    <div class="card-title">
-                        <span>📹 LIVE OPTICAL STREAM & HAR RECOGNITION</span>
-                    </div>
-                    <span class="hud-badge" id="fpsDisplay">FPS: -- | 0 ms</span>
-                </div>
+    <!-- Backend Config Bar -->
+    <div class="url-bar">
+        <label for="wsUrlInput">RENDER BACKEND WS:</label>
+        <input type="text" id="wsUrlInput" class="url-input" value="wss://aegis-har-backend.onrender.com/ws/stream">
+        <button class="btn" id="connectUrlBtn" style="padding: 0.25rem 0.75rem; font-size: 0.75rem;">CONNECT</button>
+    </div>
 
-                <div class="video-container">
-                    <video id="webcam" autoplay playsinline muted></video>
-                    <canvas id="hudCanvas"></canvas>
-                    
-                    <div class="hud-overlay">
-                        <div class="hud-corners-top"></div>
-                        <div class="hud-badge" id="hudStatusBadge">SYSTEM STANDBY</div>
-                        <div class="hud-corners-bottom"></div>
-                    </div>
-                </div>
+    <!-- Main Workspace -->
+    <div class="workspace">
+        
+        <!-- Left: Video & Telemetry -->
+        <div class="video-panel">
+            <div class="video-viewport">
+                <video id="webcam" autoplay playsinline muted></video>
+                <canvas id="overlayCanvas"></canvas>
+            </div>
 
-                <!-- Live Performance Metrics -->
-                <div class="meter-grid">
-                    <div class="meter-card">
-                        <div class="meter-title">Detected Action</div>
-                        <div class="meter-value" id="actionDisplay">Observing...</div>
-                    </div>
-                    <div class="meter-card">
-                        <div class="meter-title">Confidence</div>
-                        <div class="meter-value" id="confidenceDisplay">0.0%</div>
-                    </div>
+            <!-- Telemetry Strip -->
+            <div class="telemetry-strip">
+                <div class="telemetry-item">
+                    <span class="telemetry-label">FPS</span>
+                    <span class="telemetry-value" id="valFps">-</span>
+                </div>
+                <div class="telemetry-item">
+                    <span class="telemetry-label">LATENCY</span>
+                    <span class="telemetry-value" id="valLatency">-</span>
+                </div>
+                <div class="telemetry-item">
+                    <span class="telemetry-label">RECOGNITION</span>
+                    <span class="telemetry-value" id="valRecognition">-</span>
+                </div>
+                <div class="telemetry-item">
+                    <span class="telemetry-label">OBSERVING</span>
+                    <span class="telemetry-value" id="valObserving">-</span>
+                </div>
+                <div class="telemetry-item">
+                    <span class="telemetry-label">SESSION</span>
+                    <span class="telemetry-value" id="valSession">-</span>
                 </div>
             </div>
         </div>
 
-        <!-- Right Column: Protocol Telemetry & Control Panel -->
-        <div class="panel-stack">
+        <!-- Right: Sidebar Cards -->
+        <div class="sidebar">
             
-            <!-- Protocol Execution Card -->
-            <div class="card">
-                <div class="card-header">
-                    <div class="card-title">
-                        <span>🚀 EXPERIMENT PROTOCOL</span>
-                    </div>
-                    <span id="stepBadge" style="font-size: 0.75rem; color: var(--accent-cyan); font-family: var(--font-mono);">STEP 1</span>
-                </div>
+            <!-- Next Step Card -->
+            <div class="card next-step-card">
+                <div class="card-title">NEXT STEP</div>
+                <div class="step-main-title" id="stepMainTitle">STANDBY</div>
+                <div class="step-instruction" id="stepInstructionText">Press START SESSION to begin.</div>
+                <div class="step-progress-text" id="stepProgressCount">0 / 5 steps verified</div>
+            </div>
 
-                <div class="instruction-box">
-                    <div class="instruction-label" id="stepTitleLabel">CURRENT MISSION STEP</div>
-                    <div class="instruction-text" id="instructionText">Connecting to Render backend server...</div>
+            <!-- Voice System Diagnostics -->
+            <div class="card voice-card">
+                <div class="voice-info">
+                    <div class="card-title" style="margin: 0;">VOICE SYSTEM DIAGNOSTICS</div>
+                    <div class="voice-status-text" id="voiceStatusText">VOICE: IDLE | WORKER: STANDBY</div>
                 </div>
+                <button class="btn btn-test" id="testVoiceBtn">TEST VOICE</button>
+            </div>
 
-                <div class="progress-container">
-                    <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--text-muted);">
-                        <span>Protocol Progress</span>
-                        <span id="progressText">0%</span>
+            <!-- Protocol Step Rail -->
+            <div class="card protocol-card">
+                <div class="card-title">PROTOCOL</div>
+                <div class="protocol-list" id="protocolList">
+                    <div class="protocol-row active" id="prow-1">
+                        <div class="protocol-dot active" id="pdot-1"></div>
+                        <span class="protocol-num">01</span>
+                        <span class="protocol-name active" id="pname-1">Open sample box</span>
+                        <span class="protocol-badge active" id="pbadge-1">> NOW</span>
                     </div>
-                    <div class="progress-bar-bg">
-                        <div class="progress-bar-fill" id="progressBar"></div>
+                    <div class="protocol-row" id="prow-2">
+                        <div class="protocol-dot" id="pdot-2"></div>
+                        <span class="protocol-num">02</span>
+                        <span class="protocol-name" id="pname-2">Pick sample</span>
+                        <span class="protocol-badge" id="pbadge-2"></span>
+                    </div>
+                    <div class="protocol-row" id="prow-3">
+                        <div class="protocol-dot" id="pdot-3"></div>
+                        <span class="protocol-num">03</span>
+                        <span class="protocol-name" id="pname-3">Transfer sample to tray</span>
+                        <span class="protocol-badge crit" id="pbadge-3">CRIT</span>
+                    </div>
+                    <div class="protocol-row" id="prow-4">
+                        <div class="protocol-dot" id="pdot-4"></div>
+                        <span class="protocol-num">04</span>
+                        <span class="protocol-name" id="pname-4">Close sample box</span>
+                        <span class="protocol-badge crit" id="pbadge-4">CRIT</span>
+                    </div>
+                    <div class="protocol-row" id="prow-5">
+                        <div class="protocol-dot" id="pdot-5"></div>
+                        <span class="protocol-num">05</span>
+                        <span class="protocol-name" id="pname-5">Confirm completion</span>
+                        <span class="protocol-badge crit" id="pbadge-5">CRIT</span>
                     </div>
                 </div>
             </div>
 
-            <!-- Server Connection Panel -->
-            <div class="card">
-                <div class="card-header">
-                    <div class="card-title">
-                        <span>⚙️ RENDER BACKEND CONFIG</span>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label for="wsUrlInput">WebSocket Endpoint URL</label>
-                    <input type="text" id="wsUrlInput" class="input-field" value="wss://aegis-har-backend.onrender.com/ws/stream">
-                </div>
-
-                <div class="btn-group">
-                    <button class="btn btn-primary" id="connectBtn">Connect Stream</button>
-                    <button class="btn btn-secondary" id="disconnectBtn">Disconnect</button>
-                </div>
-            </div>
-
-            <!-- Real-time Log Feed -->
-            <div class="card">
-                <div class="card-header">
-                    <div class="card-title">
-                        <span>📜 TELEMETRY LOG</span>
-                    </div>
-                </div>
-                <div class="log-box" id="logBox">
-                    <div class="log-entry info">[SYSTEM] Console initialized. Awaiting user stream start.</div>
+            <!-- Event Log Card -->
+            <div class="card log-card">
+                <div class="card-title">EVENT LOG</div>
+                <div class="event-log-container" id="logContainer">
+                    <div class="log-line"><span class="log-time">00:00:00</span>  <span class="log-text">Console initialized. Ready for session start.</span></div>
                 </div>
             </div>
 
         </div>
-    </main>
 
-    <!-- Hidden Processing Canvas -->
+    </div>
+
+    <!-- Bottom Action Controls -->
+    <footer>
+        <button class="btn btn-start" id="startSessionBtn">START SESSION</button>
+        <button class="btn btn-stop" id="stopBtn">STOP</button>
+        <button class="btn" id="ackBtn">ACKNOWLEDGE</button>
+        <button class="btn btn-confirm" id="confirmBtn">CONFIRM STEP</button>
+        <button class="btn" id="skipBtn">SKIP STEP</button>
+        <button class="btn" id="recordBtn">RECORD</button>
+        <button class="btn" id="streamBtn">STREAM</button>
+        <button class="btn" id="voiceBtn">VOICE</button>
+        <button class="btn" id="openLogsBtn">OPEN LOGS</button>
+    </footer>
+
+    <!-- Hidden Frame Processing Canvas -->
     <canvas id="sendCanvas" width="640" height="480" style="display: none;"></canvas>
 
-    <!-- JavaScript Application Logic -->
     <script>
-        // DOM Elements
+        // DOM References
         const webcam = document.getElementById('webcam');
         const sendCanvas = document.getElementById('sendCanvas');
         const sendCtx = sendCanvas.getContext('2d');
-        const hudCanvas = document.getElementById('hudCanvas');
-        const hudCtx = hudCanvas.getContext('2d');
-        
-        const statusDot = document.getElementById('statusDot');
-        const statusText = document.getElementById('statusText');
         const wsUrlInput = document.getElementById('wsUrlInput');
-        const connectBtn = document.getElementById('connectBtn');
-        const disconnectBtn = document.getElementById('disconnectBtn');
-        const audioToggleBtn = document.getElementById('audioToggleBtn');
-        
-        const instructionText = document.getElementById('instructionText');
-        const actionDisplay = document.getElementById('actionDisplay');
-        const confidenceDisplay = document.getElementById('confidenceDisplay');
-        const fpsDisplay = document.getElementById('fpsDisplay');
-        const hudStatusBadge = document.getElementById('hudStatusBadge');
-        const stepBadge = document.getElementById('stepBadge');
-        const progressText = document.getElementById('progressText');
-        const progressBar = document.getElementById('progressBar');
-        const logBox = document.getElementById('logBox');
+        const connectUrlBtn = document.getElementById('connectUrlBtn');
+
+        // Status Lamps
+        const lampCamera = document.getElementById('lampCamera');
+        const lampModel = document.getElementById('lampModel');
+        const lampRack = document.getElementById('lampRack');
+        const lampVoice = document.getElementById('lampVoice');
+        const lampRecord = document.getElementById('lampRecord');
+        const lampStream = document.getElementById('lampStream');
+
+        // Telemetry
+        const valFps = document.getElementById('valFps');
+        const valLatency = document.getElementById('valLatency');
+        const valRecognition = document.getElementById('valRecognition');
+        const valObserving = document.getElementById('valObserving');
+        const valSession = document.getElementById('valSession');
+
+        // Sidebar
+        const stepMainTitle = document.getElementById('stepMainTitle');
+        const stepInstructionText = document.getElementById('stepInstructionText');
+        const stepProgressCount = document.getElementById('stepProgressCount');
+        const voiceStatusText = document.getElementById('voiceStatusText');
+        const logContainer = document.getElementById('logContainer');
+
+        // Buttons
+        const startSessionBtn = document.getElementById('startSessionBtn');
+        const stopBtn = document.getElementById('stopBtn');
+        const ackBtn = document.getElementById('ackBtn');
+        const confirmBtn = document.getElementById('confirmBtn');
+        const skipBtn = document.getElementById('skipBtn');
+        const testVoiceBtn = document.getElementById('testVoiceBtn');
+        const voiceBtn = document.getElementById('voiceBtn');
 
         // State Variables
         let ws = null;
         let streamInterval = null;
+        let isSessionRunning = false;
         let isVoiceEnabled = true;
-        let lastSpokenText = "";
-        let frameCount = 0;
+        let currentStepIndex = 1;
+        let frameCounter = 0;
         let lastFpsCheck = Date.now();
-        let currentFps = 0;
         let lastPingTime = 0;
+        let lastSpokenText = "";
 
-        // Auto-detect Render URL if host parameter is provided in query string
+        // Check URL query params for WS backend
         const urlParams = new URLSearchParams(window.location.search);
         if (urlParams.has('backend')) {
             wsUrlInput.value = urlParams.get('backend');
         }
 
-        // Initialize Webcam Stream
-        async function startWebcam() {
+        // Initialize Camera
+        async function initCamera() {
             try {
                 const stream = await navigator.mediaDevices.getUserMedia({
                     video: { width: { ideal: 1280 }, height: { ideal: 720 } }
                 });
                 webcam.srcObject = stream;
-                addLog('Camera feed started successfully.', 'info');
+                lampCamera.className = 'lamp-dot active';
+                addLog('Camera feed initialized successfully.');
             } catch (err) {
-                addLog('Error accessing camera: ' + err.message, 'warn');
-                alert('Webcam access failed. Please allow camera permissions.');
+                lampCamera.className = 'lamp-dot crit';
+                addLog('Camera error: ' + err.message, 'warn');
             }
         }
 
-        // Connect WebSocket
-        function connectWebSocket() {
+        // WebSocket Connection
+        function connectWS() {
             const url = wsUrlInput.value.trim();
             if (!url) return;
 
-            if (ws) {
-                ws.close();
-            }
-
-            addLog(`Connecting to Render server: ${url}...`, 'info');
-            updateConnectionState('connecting', 'Connecting...');
+            addLog(`Connecting to Render WS backend: ${url}...`);
+            lampStream.className = 'lamp-dot warn';
 
             try {
+                if (ws) ws.close();
+
                 ws = new WebSocket(url);
 
                 ws.onopen = () => {
-                    updateConnectionState('connected', 'Connected');
-                    addLog('WebSocket link established with Render backend.', 'info');
-                    hudStatusBadge.innerText = 'STREAM LIVE';
-                    
-                    // Start transmitting frames at 10 FPS (100ms interval)
+                    lampStream.className = 'lamp-dot active';
+                    lampModel.className = 'lamp-dot active';
+                    addLog('Connected to AEGIS Render backend service.');
                     if (streamInterval) clearInterval(streamInterval);
                     streamInterval = setInterval(sendFrame, 100);
                 };
 
                 ws.onmessage = (event) => {
                     const latency = Date.now() - lastPingTime;
+                    valLatency.innerText = `${latency} ms`;
                     const res = JSON.parse(event.data);
-                    handleBackendResponse(res, latency);
+                    handleBackendResponse(res);
                 };
 
                 ws.onerror = (err) => {
+                    lampStream.className = 'lamp-dot crit';
                     addLog('WebSocket error encountered.', 'warn');
                 };
 
                 ws.onclose = () => {
-                    updateConnectionState('disconnected', 'Disconnected');
-                    addLog('Connection to backend closed.', 'warn');
-                    hudStatusBadge.innerText = 'DISCONNECTED';
+                    lampStream.className = 'lamp-dot';
+                    addLog('WebSocket stream disconnected.');
                     if (streamInterval) clearInterval(streamInterval);
                 };
 
             } catch (err) {
-                addLog('Failed to open WebSocket: ' + err.message, 'warn');
-                updateConnectionState('disconnected', 'Failed');
+                lampStream.className = 'lamp-dot crit';
+                addLog('Failed to connect: ' + err.message, 'warn');
             }
         }
 
-        function disconnectWebSocket() {
-            if (streamInterval) clearInterval(streamInterval);
-            if (ws) {
-                ws.close();
-                ws = null;
-            }
-            updateConnectionState('disconnected', 'Disconnected');
-            addLog('Manually disconnected.', 'info');
-        }
-
-        // Transmit JPEG Frame to Server
         function sendFrame() {
             if (ws && ws.readyState === WebSocket.OPEN && webcam.readyState === 4) {
                 sendCtx.drawImage(webcam, 0, 0, 640, 480);
@@ -671,85 +712,176 @@
                 lastPingTime = Date.now();
                 ws.send(JSON.stringify({ image: dataUrl }));
 
-                // Track client frame counter
-                frameCount++;
+                frameCounter++;
                 const now = Date.now();
                 if (now - lastFpsCheck >= 1000) {
-                    currentFps = Math.round((frameCount * 1000) / (now - lastFpsCheck));
-                    frameCount = 0;
+                    const fps = Math.round((frameCounter * 1000) / (now - lastFpsCheck));
+                    valFps.innerText = `${fps} FPS`;
+                    frameCounter = 0;
                     lastFpsCheck = now;
                 }
             }
         }
 
-        // Process Response Data from Render Python Backend
-        function handleBackendResponse(data, latency) {
-            if (data.next_instruction) {
-                instructionText.innerText = data.next_instruction;
-            }
-
-            if (data.step) {
-                stepBadge.innerText = data.step.toUpperCase();
-            }
-
+        function handleBackendResponse(data) {
             if (data.action) {
-                actionDisplay.innerText = data.action;
+                valRecognition.innerText = `${data.action} (${(data.confidence * 100).toFixed(0)}%)`;
+            }
+            if (data.zone) {
+                valObserving.innerText = data.zone;
             }
 
-            if (data.confidence !== undefined) {
-                confidenceDisplay.innerText = (data.confidence * 100).toFixed(0) + '%';
-            }
+            if (isSessionRunning) {
+                if (data.next_instruction) {
+                    stepInstructionText.innerText = data.next_instruction;
+                }
 
-            fpsDisplay.innerText = `FPS: ${currentFps} | ${latency} ms`;
-
-            // Browser Web Speech API Speech Synthesis
-            const speechText = data.speech || (data.next_instruction !== lastSpokenText ? data.next_instruction : null);
-            if (speechText && isVoiceEnabled && speechText !== lastSpokenText) {
-                speakGuidance(speechText);
-                lastSpokenText = speechText;
-                addLog(`[VOICE] "${speechText}"`, 'speech');
+                // Speech Synthesis TTS
+                const speech = data.speech || data.next_instruction;
+                if (speech && isVoiceEnabled && speech !== lastSpokenText) {
+                    speak(speech);
+                    lastSpokenText = speech;
+                    addLog(`[VOICE] "${speech}"`, 'speech');
+                }
             }
         }
 
-        // Web Speech API Voice Output
-        function speakGuidance(text) {
+        function speak(text) {
             if ('speechSynthesis' in window) {
-                window.speechSynthesis.cancel(); // Stop any pending audio
+                window.speechSynthesis.cancel();
                 const utterance = new SpeechSynthesisUtterance(text);
                 utterance.rate = 1.0;
-                utterance.pitch = 1.0;
+                lampVoice.className = 'lamp-dot active';
+                voiceStatusText.innerText = 'VOICE: SPEAKING | WORKER: ACTIVE';
+                utterance.onend = () => {
+                    lampVoice.className = 'lamp-dot blue';
+                    voiceStatusText.innerText = 'VOICE: IDLE | WORKER: STANDBY';
+                };
                 window.speechSynthesis.speak(utterance);
             }
         }
 
-        // UI Helpers
-        function updateConnectionState(state, text) {
-            statusDot.className = 'status-dot ' + state;
-            statusText.innerText = text;
-        }
-
-        function addLog(msg, type = 'info') {
-            const entry = document.createElement('div');
-            entry.className = 'log-entry ' + type;
+        function addLog(text, type = 'info') {
             const time = new Date().toLocaleTimeString();
-            entry.innerText = `[${time}] ${msg}`;
-            logBox.appendChild(entry);
-            logBox.scrollTop = logBox.scrollHeight;
+            const div = document.createElement('div');
+            div.className = 'log-line';
+            div.innerHTML = `<span class="log-time">${time}</span>  <span class="log-text ${type}">${text}</span>`;
+            logContainer.appendChild(div);
+            logContainer.scrollTop = logContainer.scrollHeight;
         }
 
-        // Event Listeners
-        connectBtn.addEventListener('click', connectWebSocket);
-        disconnectBtn.addEventListener('click', disconnectWebSocket);
+        function updateProtocolStep(stepIdx) {
+            currentStepIndex = stepIdx;
+            const totalSteps = 5;
+            stepProgressCount.innerText = `${Math.max(0, stepIdx - 1)} / ${totalSteps} steps verified`;
 
-        audioToggleBtn.addEventListener('click', () => {
-            isVoiceEnabled = !isVoiceEnabled;
-            audioToggleBtn.innerText = isVoiceEnabled ? '🔊 Voice Guidance ON' : '🔇 Voice Guidance OFF';
-            addLog(`Audio guidance ${isVoiceEnabled ? 'enabled' : 'muted'}.`, 'info');
+            const titles = [
+                "STANDBY",
+                "Open sample box",
+                "Pick sample",
+                "Transfer sample to tray",
+                "Close sample box",
+                "Confirm completion"
+            ];
+            const insts = [
+                "Press START SESSION to begin.",
+                "Open the sample box lid carefully.",
+                "Grip and pick the biological sample.",
+                "Transfer sample securely into Zone B tray.",
+                "Close sample box lid tightly.",
+                "Verify protocol completion."
+            ];
+
+            stepMainTitle.innerText = titles[stepIdx] || "PROTOCOL COMPLETE";
+            stepInstructionText.innerText = insts[stepIdx] || "All steps verified successfully.";
+
+            for (let i = 1; i <= 5; i++) {
+                const row = document.getElementById(`prow-${i}`);
+                const dot = document.getElementById(`pdot-${i}`);
+                const name = document.getElementById(`pname-${i}`);
+                const badge = document.getElementById(`pbadge-${i}`);
+
+                if (i < stepIdx) {
+                    row.className = 'protocol-row';
+                    dot.className = 'protocol-dot done';
+                    name.className = 'protocol-name done';
+                    badge.className = 'protocol-badge done';
+                    badge.innerText = 'OK';
+                } else if (i === stepIdx) {
+                    row.className = 'protocol-row active';
+                    dot.className = 'protocol-dot active';
+                    name.className = 'protocol-name active';
+                    badge.className = 'protocol-badge active';
+                    badge.innerText = '> NOW';
+                } else {
+                    row.className = 'protocol-row';
+                    dot.className = 'protocol-dot';
+                    name.className = 'protocol-name';
+                    badge.className = (i >= 3) ? 'protocol-badge crit' : 'protocol-badge';
+                    badge.innerText = (i >= 3) ? 'CRIT' : '';
+                }
+            }
+        }
+
+        // Button Controls
+        startSessionBtn.addEventListener('click', () => {
+            isSessionRunning = true;
+            valSession.innerText = 'ACTIVE';
+            updateProtocolStep(1);
+            connectWS();
+            addLog('Session started. Protocol tracking active.');
+            speak('Session started. Open sample box.');
         });
 
-        // Initialize on load
+        stopBtn.addEventListener('click', () => {
+            isSessionRunning = false;
+            valSession.innerText = 'STANDBY';
+            stepMainTitle.innerText = 'STANDBY';
+            stepInstructionText.innerText = 'Press START SESSION to begin.';
+            addLog('Session stopped.');
+        });
+
+        confirmBtn.addEventListener('click', () => {
+            if (currentStepIndex <= 5) {
+                addLog(`Step ${currentStepIndex} confirmed manually.`);
+                updateProtocolStep(currentStepIndex + 1);
+                if (currentStepIndex <= 5) {
+                    speak(stepInstructionText.innerText);
+                } else {
+                    valSession.innerText = 'COMPLETED';
+                    speak('Protocol complete.');
+                }
+            }
+        });
+
+        skipBtn.addEventListener('click', () => {
+            if (currentStepIndex <= 5) {
+                addLog(`Step ${currentStepIndex} skipped.`, 'warn');
+                updateProtocolStep(currentStepIndex + 1);
+            }
+        });
+
+        ackBtn.addEventListener('click', () => {
+            addLog('Alert acknowledged by operator.');
+        });
+
+        testVoiceBtn.addEventListener('click', () => {
+            speak('DRISHTI voice system check operational.');
+        });
+
+        voiceBtn.addEventListener('click', () => {
+            isVoiceEnabled = !isVoiceEnabled;
+            voiceBtn.style.opacity = isVoiceEnabled ? '1' : '0.5';
+            addLog(`Voice guidance ${isVoiceEnabled ? 'enabled' : 'muted'}.`);
+        });
+
+        connectUrlBtn.addEventListener('click', connectWS);
+
+        // Init
         window.addEventListener('load', () => {
-            startWebcam();
+            initCamera();
+            lampVoice.className = 'lamp-dot blue';
+            valSession.innerText = 'STANDBY';
         });
     </script>
 </body>
