@@ -22,7 +22,7 @@ def test_health_check():
     assert response.status_code == 200
     data = response.json()
     assert data["status"] == "ok"
-    assert "AEGIS AI-HAR API" in data["service"]
+    assert "VIKRAM 1 AI-HAR API" in data["service"]
 
 
 def test_websocket_stream():

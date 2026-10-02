@@ -1,6 +1,6 @@
 <div align="center">
 
-# AEGIS · AI-HAR
+# VIKRAM 1 · AI-HAR
 
 **AI Human Activity Recognition for On-board BAS Experiments**
 
@@ -16,7 +16,7 @@ offline, with voice guidance — so science does not wait for a round trip to Ea
 ## 1. Executive Summary & SIH26174 Mapping
 
 An astronaut performing a scientific protocol has no ground support in real time.
-AEGIS watches the payload camera, recognises what the operator is doing using orientation-agnostic rack features, checks it against the expected protocol, tells them what to do next, and issues voice alerts if a step is skipped or performed out of order. Everything runs locally and 100% offline. Every decision is logged with its timestamped evidence.
+VIKRAM 1 watches the payload camera, recognises what the operator is doing using orientation-agnostic rack features, checks it against the expected protocol, tells them what to do next, and issues voice alerts if a step is skipped or performed out of order. Everything runs locally and 100% offline. Every decision is logged with its timestamped evidence.
 
 ---
 

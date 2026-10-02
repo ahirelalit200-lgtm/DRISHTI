@@ -312,7 +312,7 @@ def check_voice(report: Report) -> None:
 
 
 def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(description="AEGIS environment diagnostics")
+    parser = argparse.ArgumentParser(description="VIKRAM 1 environment diagnostics")
     parser.add_argument("--json", default=None, help="also write a JSON report here")
     parser.add_argument("--no-camera", action="store_true", help="skip the camera probe (it can be slow)")
     args = parser.parse_args(argv)
@@ -321,7 +321,7 @@ def main(argv: list[str] | None = None) -> int:
     sys.path.insert(0, str(root / "src"))
 
     print("=" * 66)
-    print("  AEGIS AI-HAR  ::  ENVIRONMENT DIAGNOSTICS")
+    print("  VIKRAM 1  ::  ENVIRONMENT DIAGNOSTICS")
     print("=" * 66)
 
     report = Report()

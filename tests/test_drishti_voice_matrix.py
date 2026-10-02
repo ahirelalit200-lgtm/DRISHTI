@@ -1,4 +1,4 @@
-"""Verification suite for DRISHTI Voice Synchronization Matrix (Part 24)."""
+"""Verification suite for VIKRAM 1 Voice Synchronization Matrix (Part 24)."""
 
 from pathlib import Path
 import time

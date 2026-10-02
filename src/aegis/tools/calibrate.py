@@ -117,7 +117,7 @@ def calibrate(config_path: str | None = None, source_override=None) -> int:
         print(f"ERROR: {source.error}")
         return 2
 
-    window = "AEGIS Calibration"
+    window = "VIKRAM 1 Calibration"
     cv2.namedWindow(window, cv2.WINDOW_NORMAL)
     cv2.resizeWindow(window, 1180, 700)
     collector = ClickCollector()

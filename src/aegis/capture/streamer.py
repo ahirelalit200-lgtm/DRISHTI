@@ -75,7 +75,7 @@ class _LatestFrame:
 
 
 PAGE = """<!doctype html>
-<html><head><meta charset="utf-8"><title>AEGIS HAR - Live Payload Feed</title>
+<html><head><meta charset="utf-8"><title>VIKRAM 1 - Live Payload Feed</title>
 <style>
  body{{margin:0;background:#05070d;color:#dbe6f5;font-family:Segoe UI,system-ui,sans-serif}}
  header{{padding:14px 20px;border-bottom:1px solid #1a2740;display:flex;gap:14px;align-items:center}}
@@ -85,14 +85,14 @@ PAGE = """<!doctype html>
  img{{max-width:100%;border:1px solid #1a2740;border-radius:10px}}
  footer{{padding:10px 20px;font-size:12px;color:#68809f}}
 </style></head>
-<body><header><span class="dot"></span><h1>AEGIS &mdash; On-board Experiment Feed</h1></header>
+<body><header><span class="dot"></span><h1>VIKRAM 1 &mdash; On-board Experiment Feed</h1></header>
 <main><img src="/stream.mjpg" alt="live feed"></main>
 <footer>MJPEG over HTTP &middot; served locally from the payload computer</footer>
 </body></html>"""
 
 
 class _Handler(BaseHTTPRequestHandler):
-    server_version = "AEGIS-HAR/1.0"
+    server_version = "VIKRAM 1/1.0"
     protocol_version = "HTTP/1.1"
 
     def log_message(self, *args) -> None:  # silence per-request console spam

@@ -2,7 +2,7 @@
 setlocal EnableExtensions EnableDelayedExpansion
 chcp 65001 >nul
 cd /d "%~dp0"
-title AEGIS - Dataset Recorder
+title VIKRAM 1 - Dataset Recorder
 if not exist ".venv\Scripts\python.exe" ( call INSTALL.bat || exit /b 1 )
 set "PYTHONPATH=%CD%\src"
 

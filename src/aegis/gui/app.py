@@ -1,4 +1,4 @@
-"""AEGIS Mission Console -- the operator-facing GUI.
+"""VIKRAM 1 Mission Console -- the operator-facing GUI.
 
 Layout: live annotated video on the left, protocol state on the right, controls
 along the bottom. The single most important element is the NEXT STEP card: it is
@@ -173,7 +173,7 @@ class MissionConsole:
         self._last_status_text = ""
 
         pick_fonts(root)
-        root.title("DRISHTI  //  AI-HAR Mission Console  --  ISRO Payload Validation System")
+        root.title("VIKRAM 1  //  AI-HAR Mission Console  --  ISRO Payload Validation System")
         root.configure(bg=C.BG)
         root.geometry("1500x900")
         root.minsize(1180, 740)
@@ -205,7 +205,7 @@ class MissionConsole:
 
         brand = tk.Frame(header, bg=C.PANEL)
         brand.pack(side="left", padx=18)
-        tk.Label(brand, text="DRISHTI", bg=C.PANEL, fg=C.ACCENT, font=font(17, "bold")).pack(side="left")
+        tk.Label(brand, text="VIKRAM 1", bg=C.PANEL, fg=C.ACCENT, font=font(17, "bold")).pack(side="left")
         tk.Label(brand, text="  AI-HAR  //  ON-BOARD EXPERIMENT VALIDATION",
                  bg=C.PANEL, fg=C.TEXT_DIM, font=font(9)).pack(side="left", padx=(8, 0))
 
@@ -368,7 +368,7 @@ class MissionConsole:
             status = self.pipeline.start()
         except Exception as exc:
             LOGGER.exception("failed to start pipeline")
-            messagebox.showerror("AEGIS", f"Could not start the session:\n\n{exc}")
+            messagebox.showerror("VIKRAM 1", f"Could not start the session:\n\n{exc}")
             self.log.append("critical", f"Start failed: {exc}")
             self.pipeline = None
             return
@@ -401,7 +401,7 @@ class MissionConsole:
     def _after_stop(self, report) -> None:
         if report is not None:
             self.log.append("success", f"Session report: {report}")
-            if messagebox.askyesno("AEGIS", f"Session complete.\n\nReport written to:\n{report}\n\nOpen it now?"):
+            if messagebox.askyesno("VIKRAM 1", f"Session complete.\n\nReport written to:\n{report}\n\nOpen it now?"):
                 self._open_path(report)
         self.step_title.config(text="STANDBY", fg=C.ACCENT)
         self.step_instruction.config(text="Press START SESSION to begin.")
@@ -447,7 +447,7 @@ class MissionConsole:
         status = self.pipeline.streamer.status()
         if active:
             self.log.append("success", f"Streaming live at {status.url}")
-            if messagebox.askyesno("AEGIS", f"Stream is live at:\n\n{status.url}\n\nOpen it in a browser?"):
+            if messagebox.askyesno("VIKRAM 1", f"Stream is live at:\n\n{status.url}\n\nOpen it in a browser?"):
                 try:
                     webbrowser.open(status.url)
                 except Exception:
@@ -609,7 +609,7 @@ class MissionConsole:
 
     def on_close(self) -> None:
         if self.pipeline is not None and self.pipeline.running:
-            if not messagebox.askokcancel("DRISHTI", "A session is running. Stop it and exit?"):
+            if not messagebox.askokcancel("VIKRAM 1", "A session is running. Stop it and exit?"):
                 return
         self._closing = True
         if self.pipeline is not None:
@@ -621,7 +621,7 @@ class MissionConsole:
 
 
 def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(description="DRISHTI AI-HAR Mission Console")
+    parser = argparse.ArgumentParser(description="VIKRAM 1 AI-HAR Mission Console")
     parser.add_argument("--config", default=None, help="path to app.yaml")
     parser.add_argument("--source", default=None, help="override video source (index, file, or URL)")
     parser.add_argument("--autostart", action="store_true", help="begin the session immediately")

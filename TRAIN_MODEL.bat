@@ -2,11 +2,11 @@
 setlocal EnableExtensions
 chcp 65001 >nul
 cd /d "%~dp0"
-title AEGIS - Train Action Model
+title VIKRAM 1 - Train Action Model
 if not exist ".venv\Scripts\python.exe" ( call INSTALL.bat || exit /b 1 )
 set "PYTHONPATH=%CD%\src"
 
-echo [AEGIS] Ensuring training dependencies...
+echo [VIKRAM 1] Ensuring training dependencies...
 ".venv\Scripts\python.exe" -m pip install --disable-pip-version-check --quiet onnx
 echo.
 echo ============================================================

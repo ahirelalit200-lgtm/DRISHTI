@@ -203,7 +203,7 @@ def record(config_path: str | None, operator: str, out_dir: str, keep_video: boo
         print(f"ERROR: {source.error}")
         return 2
 
-    window = "AEGIS Dataset Recorder"
+    window = "VIKRAM 1 Dataset Recorder"
     cv2.namedWindow(window, cv2.WINDOW_NORMAL)
     cv2.resizeWindow(window, 1180, 720)
 

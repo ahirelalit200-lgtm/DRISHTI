@@ -1,4 +1,4 @@
-"""FastAPI Backend Server for AEGIS AI-HAR.
+"""FastAPI Backend Server for VIKRAM 1 AI-HAR.
 
 Provides WebSocket real-time frame processing endpoint and HTTP health checks
 for cloud deployment on Render (or any ASGI server).
@@ -26,7 +26,7 @@ if str(SRC_DIR) not in sys.path:
 logging.basicConfig(level=logging.INFO)
 LOGGER = logging.getLogger("aegis.api")
 
-app = FastAPI(title="AEGIS AI-HAR Backend API")
+app = FastAPI(title="VIKRAM 1 AI-HAR Backend API")
 
 # Enable CORS for Vercel Frontend and cross-origin requests
 app.add_middleware(
@@ -43,7 +43,7 @@ def health_check():
     """Health check endpoint for Render monitoring."""
     return {
         "status": "ok",
-        "service": "AEGIS AI-HAR API",
+        "service": "VIKRAM 1 AI-HAR API",
         "version": "1.0.0"
     }
 
@@ -119,9 +119,9 @@ class FrameProcessor:
                 marker_ids=self.config.rack_marker_ids,
             )
             self.initialized = True
-            LOGGER.info("AEGIS perception engine successfully initialized.")
+            LOGGER.info("VIKRAM 1 perception engine successfully initialized.")
         except Exception as exc:
-            LOGGER.warning("Could not initialize full AEGIS pipeline: %s. Using fallback mode.", exc)
+            LOGGER.warning("Could not initialize full VIKRAM 1 pipeline: %s. Using fallback mode.", exc)
             self.initialized = False
 
     def process_frame(self, frame: np.ndarray) -> dict:

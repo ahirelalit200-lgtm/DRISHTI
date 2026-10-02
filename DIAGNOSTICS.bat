@@ -2,9 +2,9 @@
 setlocal EnableExtensions
 chcp 65001 >nul
 cd /d "%~dp0"
-title AEGIS - Diagnostics
+title VIKRAM 1 - Diagnostics
 if not exist ".venv\Scripts\python.exe" (
-    echo [AEGIS] No environment found. Run INSTALL.bat first.
+    echo [VIKRAM 1] No environment found. Run INSTALL.bat first.
     pause
     exit /b 1
 )

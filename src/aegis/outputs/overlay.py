@@ -125,7 +125,7 @@ def draw(frame: np.ndarray, result, rack, zones, state: OverlayState) -> np.ndar
     # --- top status bar --------------------------------------------------
     _panel(img, 0, 0, width, 34, alpha=0.62, colour=(12, 16, 26))
     done, total = state.progress
-    _put(img, "AEGIS  AI-HAR", (12, 23), 0.6, (245, 220, 150), 2)
+    _put(img, "VIKRAM 1", (12, 23), 0.6, (245, 220, 150), 2)
     _put(img, f"STEP {done}/{total}", (170, 23), 0.55, COL_TEXT)
     _put(img, f"{state.tier}", (280, 23), 0.48, COL_INFO)
     _put(img, f"{state.fps:4.1f} fps", (width - 250, 23), 0.5, COL_DIM)

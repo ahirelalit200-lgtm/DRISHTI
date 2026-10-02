@@ -25,7 +25,7 @@ class C:
     TEXT_FAINT = "#4d5c73"
 
     # semantics
-    ACCENT = "#f0c674"     # AEGIS gold - branding and the active step
+    ACCENT = "#f0c674"     # VIKRAM 1 gold - branding and the active step
     OK = "#5fd68a"
     INFO = "#5cc8f5"
     WARN = "#f5a742"

@@ -377,7 +377,7 @@ class VoiceAnnouncer:
         """Speak a sequence of diagnostic test phrases through the real speaker."""
         self.start()
         phrases = [
-            "DRISHTI voice system is working.",
+            "VIKRAM 1 voice system is working.",
             "Step 1 completed. Please pick the sample.",
             "Step 2 completed. Please transfer the sample to the tray.",
             "Session test sequence verified.",

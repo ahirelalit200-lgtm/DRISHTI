@@ -2,10 +2,10 @@
 setlocal EnableExtensions EnableDelayedExpansion
 chcp 65001 >nul
 cd /d "%~dp0"
-title AEGIS AI-HAR - Installer
+title VIKRAM 1 AI-HAR - Installer
 
 echo ============================================================
-echo   AEGIS  //  AI-HAR for On-board BAS Experiments
+echo   VIKRAM 1  //  AI-HAR for On-board BAS Experiments
 echo   Installer
 echo ============================================================
 echo.

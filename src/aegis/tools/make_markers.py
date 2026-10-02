@@ -38,7 +38,7 @@ def build_sheet(dictionary: str, ids: list[int], px: int, dpi: int) -> np.ndarra
     sheet_h = rows * (cell + label_h) + 130
     sheet = np.full((sheet_h, sheet_w, 3), 255, np.uint8)
 
-    cv2.putText(sheet, "AEGIS  -  Payload Rack Fiducials", (30, 44),
+    cv2.putText(sheet, "VIKRAM 1  -  Payload Rack Fiducials", (30, 44),
                 cv2.FONT_HERSHEY_SIMPLEX, 0.85, (0, 0, 0), 2, cv2.LINE_AA)
     cv2.putText(sheet, f"{dictionary}   {px}px @ {dpi}dpi = {px / dpi * 25.4:.0f}mm   Print at 100% scale",
                 (30, 74), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (70, 70, 70), 1, cv2.LINE_AA)

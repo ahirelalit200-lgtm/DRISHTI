@@ -600,7 +600,7 @@ def _verify(model_path: Path, meta: dict, sample) -> None:
 
 
 def _model_card(meta: dict, counts: Counter, report: str) -> str:
-    return f"""# AEGIS Action Model Card
+    return f"""# VIKRAM 1 Action Model Card
 
 Generated {meta['trained_at']}
 
@@ -643,7 +643,7 @@ authority, and every automated decision is logged with its confidence and source
 
 
 def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(description="Train the AEGIS temporal action model")
+    parser = argparse.ArgumentParser(description="Train the VIKRAM 1 temporal action model")
     parser.add_argument("--dataset", default="datasets/actions")
     parser.add_argument("--out", default="models/action/action_model.onnx")
     parser.add_argument("--window", type=int, default=32)

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DRISHTI // AI-HAR Mission Console -- ISRO Payload Validation System</title>
+    <title>VIKRAM 1 // AI-HAR Mission Console -- ISRO Payload Validation System</title>
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -448,7 +448,7 @@
     <!-- Header Bar -->
     <header>
         <div class="header-title-container">
-            <div class="header-main-title"><span>DRISHTI</span> // AI-HAR Mission Console</div>
+            <div class="header-main-title"><span>VIKRAM 1</span> // AI-HAR Mission Console</div>
             <div class="header-subtitle">ISRO Payload Validation System</div>
         </div>
 
@@ -676,7 +676,7 @@
                 ws.onopen = () => {
                     lampStream.className = 'lamp-dot active';
                     lampModel.className = 'lamp-dot active';
-                    addLog('Connected to AEGIS Render backend service.');
+                    addLog('Connected to VIKRAM 1 Render backend service.');
                     if (streamInterval) clearInterval(streamInterval);
                     streamInterval = setInterval(sendFrame, 100);
                 };
@@ -866,7 +866,7 @@
         });
 
         testVoiceBtn.addEventListener('click', () => {
-            speak('DRISHTI voice system check operational.');
+            speak('VIKRAM 1 voice system check operational.');
         });
 
         voiceBtn.addEventListener('click', () => {

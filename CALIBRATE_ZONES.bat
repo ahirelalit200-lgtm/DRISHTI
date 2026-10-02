@@ -2,7 +2,7 @@
 setlocal EnableExtensions
 chcp 65001 >nul
 cd /d "%~dp0"
-title AEGIS - Calibration
+title VIKRAM 1 - Calibration
 if not exist ".venv\Scripts\python.exe" ( call INSTALL.bat || exit /b 1 )
 set "PYTHONPATH=%CD%\src"
 echo ============================================================

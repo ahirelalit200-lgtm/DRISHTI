@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "aegis-har"
 version = "1.0.0"
-description = "AI Human Activity Recognition for on-board BAS experiments (SIH 26174)"
+description = "VIKRAM 1 AI Human Activity Recognition for on-board BAS experiments (SIH 26174)"
 requires-python = ">=3.10"
 readme = "README.md"
 

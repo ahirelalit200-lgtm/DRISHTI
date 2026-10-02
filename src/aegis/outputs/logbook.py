@@ -26,7 +26,7 @@ import time
 LOGGER = logging.getLogger(__name__)
 
 HEADER = (
-    "# DRISHTI AI-HAR EXPERIMENT LOG\n"
+    "# VIKRAM 1 EXPERIMENT LOG\n"
     "# {experiment}\n"
     "# session : {session}\n"
     "# started : {started}\n"
@@ -208,7 +208,7 @@ class Logbook:
 
         lines: list[str] = []
         lines.append("=" * 78)
-        lines.append("DRISHTI AI-HAR  ::  ON-BOARD EXPERIMENT VALIDATION - EXPERIMENT SESSION REPORT")
+        lines.append("VIKRAM 1  ::  ON-BOARD EXPERIMENT VALIDATION - EXPERIMENT SESSION REPORT")
         lines.append("=" * 78)
         lines.append(f"Experiment      : {self.experiment}")
         lines.append(f"Session ID      : {self.session_id}")
