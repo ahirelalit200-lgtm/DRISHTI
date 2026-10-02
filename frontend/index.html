@@ -706,19 +706,22 @@
             const url = wsUrlInput.value.trim();
             if (!url) return;
 
+            if (ws && (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING)) {
+                console.log('[WS] Connection already active or connecting. Skipping duplicate connectWS call.');
+                return;
+            }
+
             addLog(`Connecting to Render WS backend: ${url}...`);
             console.log('[WS] CONNECTING to', url);
             lampStream.className = 'lamp-dot warn';
 
             try {
-                if (ws) ws.close();
-
                 ws = new WebSocket(url);
 
                 ws.onopen = () => {
                     lampStream.className = 'lamp-dot active';
                     lampModel.className = 'lamp-dot active';
-                    console.log('[WS] CONNECTED successfully.');
+                    console.log('[WS] OPEN');
                     addLog('Connected to VIKRAM 1 Render backend service.');
                     if (streamInterval) clearInterval(streamInterval);
                     streamInterval = setInterval(sendFrame, 100);
@@ -736,16 +739,16 @@
                     }
                 };
 
-                ws.onerror = (err) => {
+                ws.onerror = (event) => {
                     lampStream.className = 'lamp-dot crit';
-                    console.error('[WS] WebSocket error:', err);
+                    console.error('[WS] ERROR', event);
                     addLog('WebSocket error encountered.', 'warn');
                 };
 
-                ws.onclose = () => {
+                ws.onclose = (event) => {
                     lampStream.className = 'lamp-dot';
-                    console.log('[WS] WebSocket disconnected.');
-                    addLog('WebSocket stream disconnected.');
+                    console.error('[WS] CLOSED', 'code:', event.code, 'reason:', event.reason || 'None', 'clean:', event.wasClean);
+                    addLog(`WebSocket stream disconnected (code ${event.code}).`);
                     if (streamInterval) clearInterval(streamInterval);
                 };
 
