@@ -742,6 +742,21 @@
             }
         }
 
+        // Persistent AI Overlay Image for Canvas Rendering
+        const overlayCanvas = document.getElementById('overlayCanvas');
+        const overlayCtx = overlayCanvas.getContext('2d');
+        const aiOverlayImg = new Image();
+        aiOverlayImg.onload = () => {
+            const w = aiOverlayImg.naturalWidth || webcam.videoWidth || 640;
+            const h = aiOverlayImg.naturalHeight || webcam.videoHeight || 480;
+            if (overlayCanvas.width !== w || overlayCanvas.height !== h) {
+                overlayCanvas.width = w;
+                overlayCanvas.height = h;
+            }
+            overlayCtx.clearRect(0, 0, w, h);
+            overlayCtx.drawImage(aiOverlayImg, 0, 0, w, h);
+        };
+
         function handleBackendResponse(data) {
             if (data.action) {
                 valRecognition.innerText = `${data.action} (${(data.confidence * 100).toFixed(0)}%)`;
@@ -751,20 +766,7 @@
             }
 
             if (data.image) {
-                const overlayCanvas = document.getElementById('overlayCanvas');
-                const overlayCtx = overlayCanvas.getContext('2d');
-                const img = new Image();
-                img.onload = () => {
-                    const w = webcam.videoWidth || 640;
-                    const h = webcam.videoHeight || 480;
-                    if (overlayCanvas.width !== w || overlayCanvas.height !== h) {
-                        overlayCanvas.width = w;
-                        overlayCanvas.height = h;
-                    }
-                    overlayCtx.clearRect(0, 0, w, h);
-                    overlayCtx.drawImage(img, 0, 0, w, h);
-                };
-                img.src = data.image;
+                aiOverlayImg.src = data.image;
             }
 
             if (isSessionRunning) {
