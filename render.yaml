@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: aegis-har-backend
+    name: vikram1
     env: python
     buildCommand: "pip install -r requirements.txt"
     startCommand: "uvicorn src.aegis.api:app --host 0.0.0.0 --port $PORT"
