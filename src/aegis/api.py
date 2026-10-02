@@ -11,6 +11,7 @@ import json
 import logging
 import sys
 import time
+import os
 from pathlib import Path
 import cv2
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
@@ -39,6 +40,7 @@ app.add_middleware(
 
 
 @app.get("/")
+@app.get("/health")
 def health_check():
     """Health check endpoint for Render monitoring."""
     return {
@@ -67,6 +69,7 @@ class FrameProcessor:
         try:
             try:
                 from .config import load_config
+                from .outputs.overlay import OverlayState, draw
                 from .perception.landmarks import LandmarkExtractor
                 from .perception.rack_frame import RackTracker
                 from .perception.recognizer import LearnedRecognizer, RecognitionEngine
@@ -75,6 +78,7 @@ class FrameProcessor:
                 from .protocol.spec import load_protocol
             except ImportError:
                 from aegis.config import load_config
+                from aegis.outputs.overlay import OverlayState, draw
                 from aegis.perception.landmarks import LandmarkExtractor
                 from aegis.perception.rack_frame import RackTracker
                 from aegis.perception.recognizer import LearnedRecognizer, RecognitionEngine
@@ -118,6 +122,11 @@ class FrameProcessor:
                 dictionary=self.config.rack_marker_dict,
                 marker_ids=self.config.rack_marker_ids,
             )
+            self.overlay_state = OverlayState()
+            self.session_id = f"S-{int(time.time())}"
+            self.last_fps_time = time.monotonic()
+            self.fps = 0.0
+            self.fps_counter = 0
             self.initialized = True
             LOGGER.info("VIKRAM 1 perception engine successfully initialized.")
         except Exception as exc:
@@ -127,6 +136,13 @@ class FrameProcessor:
     def process_frame(self, frame: np.ndarray) -> dict:
         self.frame_index += 1
         timestamp = time.monotonic()
+
+        self.fps_counter += 1
+        now = time.monotonic()
+        if now - self.last_fps_time >= 1.0:
+            self.fps = self.fps_counter / (now - self.last_fps_time)
+            self.fps_counter = 0
+            self.last_fps_time = now
 
         if self.initialized and self.extractor and self.recognition and self.engine:
             try:
@@ -162,8 +178,36 @@ class FrameProcessor:
                             speech_text = ev.speech
 
                 step = self.engine.current_step
+                done, total = self.engine.progress()
                 step_str = f"Step {step.id}: {step.name}" if step else "PROTOCOL COMPLETE"
                 next_inst = self.engine.next_instruction or ("Protocol Completed!" if self.engine.completed else "Awaiting action...")
+
+                try:
+                    from .outputs.overlay import draw
+                except ImportError:
+                    from aegis.outputs.overlay import draw
+
+                if hasattr(self, "overlay_state"):
+                    self.overlay_state.instruction = next_inst
+                    self.overlay_state.step_label = (
+                        f"BLOCKED - STEP {step.id}" if (self.engine.blocked and step) else
+                        (f"STEP {step.id} / {total} - {step.name}" if step else "PROTOCOL COMPLETE")
+                    )
+                    self.overlay_state.progress = (done, total)
+                    self.overlay_state.tier = getattr(self.recognition, "tier", "Tier 0 - heuristic")
+                    self.overlay_state.fps = self.fps if self.fps > 0 else 10.0
+                    self.overlay_state.confidence = float(rec.confidence) if rec else 0.0
+                    self.overlay_state.rack_source = rack.source if rack else "identity"
+                    self.overlay_state.blocked = self.engine.blocked
+                    self.overlay_state.session_id = getattr(self, "session_id", "S-LIVE")
+                    self.overlay_state.recording = True
+                    self.overlay_state.streaming = True
+
+                    annotated = draw(frame, result, rack, self.zones, self.overlay_state)
+                    _, buffer = cv2.imencode(".jpg", annotated, [cv2.IMWRITE_JPEG_QUALITY, 75])
+                    annotated_b64 = "data:image/jpeg;base64," + base64.b64encode(buffer).decode("utf-8")
+                else:
+                    annotated_b64 = None
 
                 return {
                     "step": step_str,
@@ -174,12 +218,35 @@ class FrameProcessor:
                     "speech": speech_text,
                     "zone": rec.zone if rec else "-",
                     "hand": rec.hand if rec else "-",
-                    "engine_ready": True
+                    "engine_ready": True,
+                    "image": annotated_b64
                 }
             except Exception as exc:
                 LOGGER.error("Error processing frame: %s", exc)
 
         # Standby / Fallback response if pipeline uninitialized or missing models
+        try:
+            try:
+                from .outputs.overlay import OverlayState, draw
+            except ImportError:
+                from aegis.outputs.overlay import OverlayState, draw
+
+            fb_state = OverlayState(
+                instruction="Position hands near Zone A and grip container",
+                step_label="STANDBY - INITIALIZING PIPELINE",
+                progress=(0, 5),
+                tier="Tier 0 - heuristic",
+                fps=self.fps if self.fps > 0 else 10.0,
+                confidence=0.95,
+                recording=True,
+                streaming=True
+            )
+            annotated = draw(frame, None, None, self.zones, fb_state)
+            _, buffer = cv2.imencode(".jpg", annotated, [cv2.IMWRITE_JPEG_QUALITY, 75])
+            fb_b64 = "data:image/jpeg;base64," + base64.b64encode(buffer).decode("utf-8")
+        except Exception:
+            fb_b64 = None
+
         return {
             "step": "Sample Transfer - Active Session",
             "status": "IN_PROGRESS",
@@ -187,16 +254,27 @@ class FrameProcessor:
             "confidence": 0.95,
             "next_instruction": "Position hands near Zone A and grip container",
             "speech": None,
-            "engine_ready": False
+            "engine_ready": False,
+            "image": fb_b64
         }
 
 
 @app.websocket("/ws/stream")
 async def websocket_endpoint(websocket: WebSocket) -> None:
     """WebSocket endpoint for real-time video stream HAR perception."""
-    await websocket.accept()
+    origin = websocket.headers.get("origin", "unknown")
+    client_host = websocket.client.host if websocket.client else "unknown"
+    client_port = websocket.client.port if websocket.client else 0
+    LOGGER.info("[WS] CONNECTION ATTEMPT from %s:%s | PATH: /ws/stream | ORIGIN: %s", client_host, client_port, origin)
+    try:
+        LOGGER.info("[WS] BEFORE ACCEPT")
+        await websocket.accept()
+        LOGGER.info("[WS] ACCEPTED - Handshake complete.")
+    except Exception as exc:
+        LOGGER.error("[WS] HANDSHAKE FAILED BEFORE ACCEPT: %s", exc, exc_info=True)
+        raise exc
+
     processor = FrameProcessor()
-    LOGGER.info("WebSocket client connected.")
     try:
         while True:
             data = await websocket.receive_text()
@@ -222,9 +300,9 @@ async def websocket_endpoint(websocket: WebSocket) -> None:
             await websocket.send_text(json.dumps(response))
 
     except WebSocketDisconnect:
-        LOGGER.info("WebSocket client disconnected.")
+        LOGGER.info("[WS] Client disconnected normally (WebSocketDisconnect).")
     except Exception as exc:
-        LOGGER.error("WebSocket endpoint error: %s", exc)
+        LOGGER.error("[WS] Stream processing exception: %s", exc)
         try:
             await websocket.close()
         except Exception:

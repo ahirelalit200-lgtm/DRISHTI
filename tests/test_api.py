@@ -24,6 +24,11 @@ def test_health_check():
     assert data["status"] == "ok"
     assert "VIKRAM 1 AI-HAR API" in data["service"]
 
+    # Also test /health endpoint alias
+    health_resp = client.get("/health")
+    assert health_resp.status_code == 200
+    assert health_resp.json()["status"] == "ok"
+
 
 def test_websocket_stream():
     client = TestClient(app)
