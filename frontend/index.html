@@ -659,89 +659,6 @@
 
         wsUrlInput.value = getInitialWsUrl();
 
-        // Initialize Camera
-        async function initCamera() {
-            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-                lampCamera.className = 'lamp-dot crit';
-                addLog('Camera API unavailable (HTTPS or localhost required).', 'warn');
-                return;
-            }
-            try {
-                const stream = await navigator.mediaDevices.getUserMedia({
-                    video: { width: { ideal: 1280 }, height: { ideal: 720 } }
-                });
-                webcam.srcObject = stream;
-                lampCamera.className = 'lamp-dot active';
-                addLog('Camera feed initialized successfully.');
-            } catch (err) {
-                lampCamera.className = 'lamp-dot crit';
-                addLog('Camera error: ' + err.message, 'warn');
-            }
-        }
-
-        // WebSocket Connection
-        function connectWS() {
-            const url = wsUrlInput.value.trim();
-            if (!url) return;
-
-            addLog(`Connecting to Render WS backend: ${url}...`);
-            lampStream.className = 'lamp-dot warn';
-
-            try {
-                if (ws) ws.close();
-
-                ws = new WebSocket(url);
-
-                ws.onopen = () => {
-                    lampStream.className = 'lamp-dot active';
-                    lampModel.className = 'lamp-dot active';
-                    addLog('Connected to VIKRAM 1 Render backend service.');
-                    if (streamInterval) clearInterval(streamInterval);
-                    streamInterval = setInterval(sendFrame, 100);
-                };
-
-                ws.onmessage = (event) => {
-                    const latency = Date.now() - lastPingTime;
-                    valLatency.innerText = `${latency} ms`;
-                    const res = JSON.parse(event.data);
-                    handleBackendResponse(res);
-                };
-
-                ws.onerror = (err) => {
-                    lampStream.className = 'lamp-dot crit';
-                    addLog('WebSocket error encountered.', 'warn');
-                };
-
-                ws.onclose = () => {
-                    lampStream.className = 'lamp-dot';
-                    addLog('WebSocket stream disconnected.');
-                    if (streamInterval) clearInterval(streamInterval);
-                };
-
-            } catch (err) {
-                lampStream.className = 'lamp-dot crit';
-                addLog('Failed to connect: ' + err.message, 'warn');
-            }
-        }
-
-        function sendFrame() {
-            if (ws && ws.readyState === WebSocket.OPEN && webcam.readyState === 4) {
-                sendCtx.drawImage(webcam, 0, 0, 640, 480);
-                const dataUrl = sendCanvas.toDataURL('image/jpeg', 0.5);
-                lastPingTime = Date.now();
-                ws.send(JSON.stringify({ image: dataUrl }));
-
-                frameCounter++;
-                const now = Date.now();
-                if (now - lastFpsCheck >= 1000) {
-                    const fps = Math.round((frameCounter * 1000) / (now - lastFpsCheck));
-                    valFps.innerText = `${fps} FPS`;
-                    frameCounter = 0;
-                    lastFpsCheck = now;
-                }
-            }
-        }
-
         // Persistent AI Overlay Image for Canvas Rendering
         const overlayCanvas = document.getElementById('overlayCanvas');
         const overlayCtx = overlayCanvas.getContext('2d');
@@ -755,7 +672,109 @@
             }
             overlayCtx.clearRect(0, 0, w, h);
             overlayCtx.drawImage(aiOverlayImg, 0, 0, w, h);
+            console.log('[RENDER] Canvas drawImage COMPLETE. Dimensions:', w, 'x', h);
         };
+        aiOverlayImg.onerror = (err) => {
+            console.error('[RENDER] Image decoding error:', err);
+        };
+
+        // Initialize Camera
+        async function initCamera() {
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                lampCamera.className = 'lamp-dot crit';
+                addLog('Camera API unavailable (HTTPS or localhost required).', 'warn');
+                return;
+            }
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({
+                    video: { width: { ideal: 1280 }, height: { ideal: 720 } }
+                });
+                webcam.srcObject = stream;
+                await webcam.play().catch(e => console.log('Camera autoplay handled:', e));
+                lampCamera.className = 'lamp-dot active';
+                addLog('Camera feed initialized successfully.');
+                // Connect WebSocket automatically once camera is ready
+                connectWS();
+            } catch (err) {
+                lampCamera.className = 'lamp-dot crit';
+                addLog('Camera error: ' + err.message, 'warn');
+            }
+        }
+
+        // WebSocket Connection
+        function connectWS() {
+            const url = wsUrlInput.value.trim();
+            if (!url) return;
+
+            addLog(`Connecting to Render WS backend: ${url}...`);
+            console.log('[WS] CONNECTING to', url);
+            lampStream.className = 'lamp-dot warn';
+
+            try {
+                if (ws) ws.close();
+
+                ws = new WebSocket(url);
+
+                ws.onopen = () => {
+                    lampStream.className = 'lamp-dot active';
+                    lampModel.className = 'lamp-dot active';
+                    console.log('[WS] CONNECTED successfully.');
+                    addLog('Connected to VIKRAM 1 Render backend service.');
+                    if (streamInterval) clearInterval(streamInterval);
+                    streamInterval = setInterval(sendFrame, 100);
+                };
+
+                ws.onmessage = (event) => {
+                    const latency = Date.now() - lastPingTime;
+                    valLatency.innerText = `${latency} ms`;
+                    try {
+                        const res = JSON.parse(event.data);
+                        console.log('[WS] MESSAGE RECEIVED. Keys:', Object.keys(res), '| Image field found:', !!res.image, '| Image length:', res.image ? res.image.length : 0);
+                        handleBackendResponse(res);
+                    } catch (e) {
+                        console.error('[WS] Error parsing message:', e);
+                    }
+                };
+
+                ws.onerror = (err) => {
+                    lampStream.className = 'lamp-dot crit';
+                    console.error('[WS] WebSocket error:', err);
+                    addLog('WebSocket error encountered.', 'warn');
+                };
+
+                ws.onclose = () => {
+                    lampStream.className = 'lamp-dot';
+                    console.log('[WS] WebSocket disconnected.');
+                    addLog('WebSocket stream disconnected.');
+                    if (streamInterval) clearInterval(streamInterval);
+                };
+
+            } catch (err) {
+                lampStream.className = 'lamp-dot crit';
+                console.error('[WS] Connection exception:', err);
+                addLog('Failed to connect: ' + err.message, 'warn');
+            }
+        }
+
+        function sendFrame() {
+            if (ws && ws.readyState === WebSocket.OPEN && webcam.readyState >= 2 && (webcam.videoWidth > 0 || webcam.width > 0)) {
+                sendCtx.drawImage(webcam, 0, 0, 640, 480);
+                const dataUrl = sendCanvas.toDataURL('image/jpeg', 0.5);
+                lastPingTime = Date.now();
+                ws.send(JSON.stringify({ image: dataUrl }));
+
+                frameCounter++;
+                const now = Date.now();
+                if (now - lastFpsCheck >= 1000) {
+                    const fps = Math.round((frameCounter * 1000) / (now - lastFpsCheck));
+                    valFps.innerText = `${fps} FPS`;
+                    frameCounter = 0;
+                    lastFpsCheck = now;
+                }
+            } else if (ws && ws.readyState === WebSocket.OPEN) {
+                console.log('[WS] Waiting for camera frame: readyState=', webcam.readyState, 'videoWidth=', webcam.videoWidth);
+            }
+        }
 
         function handleBackendResponse(data) {
             if (data.action) {
