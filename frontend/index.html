@@ -701,6 +701,9 @@
             }
         }
 
+        let txFrameCount = 0;
+        let rxFrameCount = 0;
+
         // WebSocket Connection
         function connectWS() {
             const url = wsUrlInput.value.trim();
@@ -732,7 +735,10 @@
                     valLatency.innerText = `${latency} ms`;
                     try {
                         const res = JSON.parse(event.data);
-                        console.log('[WS] MESSAGE RECEIVED. Keys:', Object.keys(res), '| Image field found:', !!res.image, '| Image length:', res.image ? res.image.length : 0);
+                        rxFrameCount++;
+                        if (rxFrameCount % 50 === 1) {
+                            console.log(`[WS] RX response #${rxFrameCount}. Keys:`, Object.keys(res), '| Image field found:', !!res.image, '| Image length:', res.image ? res.image.length : 0);
+                        }
                         handleBackendResponse(res);
                     } catch (e) {
                         console.error('[WS] Error parsing message:', e);
@@ -747,7 +753,12 @@
 
                 ws.onclose = (event) => {
                     lampStream.className = 'lamp-dot';
-                    console.error('[WS] CLOSED', 'code:', event.code, 'reason:', event.reason || 'None', 'clean:', event.wasClean);
+                    console.log('[WS] CLOSED', {
+                        code: event.code,
+                        reason: event.reason,
+                        wasClean: event.wasClean,
+                        readyState: ws ? ws.readyState : null
+                    });
                     addLog(`WebSocket stream disconnected (code ${event.code}).`);
                     if (streamInterval) clearInterval(streamInterval);
                 };
@@ -765,6 +776,10 @@
                 const dataUrl = sendCanvas.toDataURL('image/jpeg', 0.5);
                 lastPingTime = Date.now();
                 ws.send(JSON.stringify({ image: dataUrl }));
+                txFrameCount++;
+                if (txFrameCount % 50 === 1) {
+                    console.log(`[WS] TX frame #${txFrameCount}`);
+                }
 
                 frameCounter++;
                 const now = Date.now();

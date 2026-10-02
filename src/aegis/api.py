@@ -275,11 +275,17 @@ async def websocket_endpoint(websocket: WebSocket) -> None:
         raise exc
 
     processor = FrameProcessor()
+    rx_counter = 0
+    tx_counter = 0
     try:
         while True:
             data = await websocket.receive_text()
             if not data:
                 continue
+
+            rx_counter += 1
+            if rx_counter % 50 == 1:
+                LOGGER.info("[WS] RX frame #%d received", rx_counter)
 
             payload = json.loads(data)
             if "image" not in payload:
@@ -294,16 +300,20 @@ async def websocket_endpoint(websocket: WebSocket) -> None:
             frame = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
 
             if frame is None:
+                LOGGER.warning("[WS] Decoded frame is None for frame #%d", rx_counter)
                 continue
 
             response = processor.process_frame(frame)
             await websocket.send_text(json.dumps(response))
+            tx_counter += 1
+            if tx_counter % 50 == 1:
+                LOGGER.info("[WS] TX response #%d sent", tx_counter)
 
-    except WebSocketDisconnect:
-        LOGGER.info("[WS] Client disconnected normally (WebSocketDisconnect).")
+    except WebSocketDisconnect as e:
+        LOGGER.info("[WS] CLIENT DISCONNECTED (WebSocketDisconnect): code=%s, reason=%s", getattr(e, "code", None), getattr(e, "reason", None))
     except Exception as exc:
-        LOGGER.error("[WS] Stream processing exception: %s", exc)
+        LOGGER.exception("[WS] UNEXPECTED ERROR in stream loop for frame #%d: %s", rx_counter, exc)
         try:
-            await websocket.close()
+            await websocket.close(code=1011, reason="Server processing error")
         except Exception:
             pass
