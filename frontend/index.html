@@ -639,14 +639,33 @@
         let lastPingTime = 0;
         let lastSpokenText = "";
 
-        // Check URL query params for WS backend
-        const urlParams = new URLSearchParams(window.location.search);
-        if (urlParams.has('backend')) {
-            wsUrlInput.value = urlParams.get('backend');
+        // Auto-detect optimal WS Backend URL based on host environment
+        function getInitialWsUrl() {
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.has('backend')) {
+                return urlParams.get('backend');
+            }
+            const host = window.location.hostname;
+            if (host === 'localhost' || host === '127.0.0.1' || host === '0.0.0.0' || window.location.protocol === 'file:') {
+                const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+                const port = window.location.port;
+                if (port && port === '8000') {
+                    return `${protocol}//${window.location.host}/ws/stream`;
+                }
+                return `${protocol}//${host || 'localhost'}:8000/ws/stream`;
+            }
+            return 'wss://vikram1.onrender.com/ws/stream';
         }
+
+        wsUrlInput.value = getInitialWsUrl();
 
         // Initialize Camera
         async function initCamera() {
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                lampCamera.className = 'lamp-dot crit';
+                addLog('Camera API unavailable (HTTPS or localhost required).', 'warn');
+                return;
+            }
             try {
                 const stream = await navigator.mediaDevices.getUserMedia({
                     video: { width: { ideal: 1280 }, height: { ideal: 720 } }
@@ -729,6 +748,23 @@
             }
             if (data.zone) {
                 valObserving.innerText = data.zone;
+            }
+
+            if (data.image) {
+                const overlayCanvas = document.getElementById('overlayCanvas');
+                const overlayCtx = overlayCanvas.getContext('2d');
+                const img = new Image();
+                img.onload = () => {
+                    const w = webcam.videoWidth || 640;
+                    const h = webcam.videoHeight || 480;
+                    if (overlayCanvas.width !== w || overlayCanvas.height !== h) {
+                        overlayCanvas.width = w;
+                        overlayCanvas.height = h;
+                    }
+                    overlayCtx.clearRect(0, 0, w, h);
+                    overlayCtx.drawImage(img, 0, 0, w, h);
+                };
+                img.src = data.image;
             }
 
             if (isSessionRunning) {
