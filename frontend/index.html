@@ -929,10 +929,64 @@
             speak('VIKRAM 1 voice system check operational.');
         });
 
-        voiceBtn.addEventListener('click', () => {
-            isVoiceEnabled = !isVoiceEnabled;
-            voiceBtn.style.opacity = isVoiceEnabled ? '1' : '0.5';
-            addLog(`Voice guidance ${isVoiceEnabled ? 'enabled' : 'muted'}.`);
+        const recordBtn = document.getElementById('recordBtn');
+        let mediaRecorder = null;
+        let recordedChunks = [];
+        let isBrowserRecording = false;
+
+        recordBtn.addEventListener('click', () => {
+            if (isBrowserRecording) {
+                if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+                    mediaRecorder.stop();
+                }
+                isBrowserRecording = false;
+                lampRecord.className = 'lamp-dot';
+                recordBtn.style.backgroundColor = 'var(--panel-hi)';
+                recordBtn.style.color = 'var(--text-main)';
+                addLog('Browser recording stopped.');
+            } else {
+                recordedChunks = [];
+                const stream = overlayCanvas.captureStream(20);
+                try {
+                    mediaRecorder = new MediaRecorder(stream, { mimeType: 'video/webm;codecs=vp9' });
+                } catch (e) {
+                    try {
+                        mediaRecorder = new MediaRecorder(stream, { mimeType: 'video/webm' });
+                    } catch (e2) {
+                        mediaRecorder = new MediaRecorder(stream);
+                    }
+                }
+
+                mediaRecorder.ondataavailable = (event) => {
+                    if (event.data && event.data.size > 0) {
+                        recordedChunks.push(event.data);
+                    }
+                };
+
+                mediaRecorder.onstop = () => {
+                    const blob = new Blob(recordedChunks, { type: mediaRecorder.mimeType || 'video/webm' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.style.display = 'none';
+                    a.href = url;
+                    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+                    a.download = `VIKRAM1_session_recording_${timestamp}.webm`;
+                    document.body.appendChild(a);
+                    a.click();
+                    setTimeout(() => {
+                        document.body.removeChild(a);
+                        window.URL.revokeObjectURL(url);
+                    }, 100);
+                    addLog('Recording saved and downloaded.', 'speech');
+                };
+
+                mediaRecorder.start(1000);
+                isBrowserRecording = true;
+                lampRecord.className = 'lamp-dot crit';
+                recordBtn.style.backgroundColor = 'var(--color-crit)';
+                recordBtn.style.color = '#fff';
+                addLog('Browser session recording STARTED.', 'warn');
+            }
         });
 
         connectUrlBtn.addEventListener('click', connectWS);
