@@ -160,6 +160,9 @@ class HeuristicRecognizer:
                 motion = 0.6
 
             score = 0.5 * zone_score + 0.3 * motion + 0.2 * dwell
+            if step.zone and zone_score < 0.35:
+                score *= (zone_score / 0.35)
+
             if score > best:
                 best, best_side, best_zone = score, side, here
 
@@ -192,7 +195,7 @@ class HeuristicRecognizer:
         if expected is not None and step.id != expected.id:
             exp = next((s for s in scored if s[1].id == expected.id), None)
             if exp is not None:
-                margin = 0.25 if step.id < expected.id else 0.12
+                margin = 0.25 if step.id < expected.id else 0.18
                 if conf - exp[0] < margin:
                     conf, step, side, zone = exp
 

@@ -110,14 +110,22 @@ def draw(frame: np.ndarray, result, rack, zones, state: OverlayState) -> np.ndar
             pts = result.pose.points_px.astype(int)
             vis = result.pose.visibility
             for a, b in POSE_EDGES:
-                if vis[a] > 0.4 and vis[b] > 0.4:
-                    cv2.line(img, tuple(pts[a]), tuple(pts[b]), (150, 150, 165), 2, cv2.LINE_AA)
+                if vis[a] > 0.3 and vis[b] > 0.3:
+                    cv2.line(img, tuple(pts[a]), tuple(pts[b]), (0, 0, 0), 4, cv2.LINE_AA)
+                    cv2.line(img, tuple(pts[a]), tuple(pts[b]), (255, 200, 100), 2, cv2.LINE_AA)
+            for i, p in enumerate(pts):
+                if vis[i] > 0.3:
+                    cv2.circle(img, tuple(p), 4, (0, 0, 0), -1, cv2.LINE_AA)
+                    cv2.circle(img, tuple(p), 3, (255, 200, 100), -1, cv2.LINE_AA)
+
         for hand in result.hands:
             pts = hand.points_px.astype(int)
             colour = (255, 190, 100) if hand.label == "left" else (140, 230, 160)
             for a, b in HAND_EDGES:
+                cv2.line(img, tuple(pts[a]), tuple(pts[b]), (0, 0, 0), 4, cv2.LINE_AA)
                 cv2.line(img, tuple(pts[a]), tuple(pts[b]), colour, 2, cv2.LINE_AA)
             for p in pts:
+                cv2.circle(img, tuple(p), 5, (0, 0, 0), -1, cv2.LINE_AA)
                 cv2.circle(img, tuple(p), 3, colour, -1, cv2.LINE_AA)
             wrist = pts[0]
             _put(img, f"{hand.label[:1].upper()} grip {hand.grip_aperture():.2f}", (wrist[0] - 20, wrist[1] + 22), 0.42, colour)
